@@ -148,6 +148,10 @@ class BarChart extends PureComponent {
                                 }
 
                                 const props = bar.value < 0 ? bar.negative : bar.positive
+                                let fill = renderGradient ? `url(#gradient-${index})` : props.fill
+                                if (bar.highlight && bar.highlight.index && bar.highlight.index === index) {
+                                    fill = bar.highlight.fill || 'red'
+                                }
 
                                 return (
                                     <G key={index}>
@@ -162,7 +166,7 @@ class BarChart extends PureComponent {
                                         </Defs>
                                         <Path
                                             { ...props }
-                                            fill={ renderGradient ? `url(#gradient-${index})` : props.fill }
+                                            fill={ fill }
                                             d={bar.area || null}
                                             animate={animate}
                                             animationDuration={animationDuration}
