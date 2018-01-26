@@ -152,6 +152,39 @@ class BarChart extends PureComponent {
                                 if (bar.highlight && bar.highlight.index && bar.highlight.index === index) {
                                     fill = bar.highlight.fill || 'red'
                                 }
+                                if (bar.roundedCorners) {
+                                  let arr = bar.area.split('L');
+                                  arr = arr.map((item,i) => {
+                                    // console.log('item: ' + item);
+                                    const mod = 2;
+                                    let xy = item.split(/,|Z/);
+                                    let x;
+                                    if (i === 0) {
+                                      x = Number(xy[0].substring(1));
+                                    } else {
+                                      x = Number(xy[0]);
+                                    }
+                                    let y = Number(xy[1]);
+                                    if (i === 0) {
+                                      y = Math.min(y + mod, 30);
+                                    }
+                                    // console.log('x: ' + x);
+                                    // console.log('y: ' + y);
+                                    if (i === 0) {
+                                      return `M${x},${y}L${x+mod},${y-mod}`;
+                                    }
+                                    if (i === 1) {
+                                      return `L${x-mod},${y}L${x},${y+mod}`;
+                                    }
+                                    if (i+1 === arr.length) {
+                                      return `L${x},${y}Z`;
+                                    }
+                                    return `L${x},${y}`;
+                                  });
+                                  // console.log(bar.area === arr.join(''));
+                                  // console.log(arr.join(''));
+                                  bar.area = arr.join('');
+                                }
 
                                 return (
                                     <G key={index}>
