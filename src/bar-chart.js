@@ -160,23 +160,16 @@ class BarChart extends PureComponent {
                                     }
                                     let y = Number(xy[1]);
                                     if (i === 0) {
-                                      y = Math.min(y + mod, 30);
-                                    }
-                                    // console.log('x: ' + x);
-                                    // console.log('y: ' + y);
-                                    if (i === 0) {
-                                      return `M${x},${y}L${x+mod},${y-mod}`;
+                                      return `M${x},${y}A ${mod} ${mod} 0 0 1 ${x+mod},${y-mod}`;
                                     }
                                     if (i === 1) {
-                                      return `L${x-mod},${y}L${x},${y+mod}`;
+                                      return `L${x-mod},${y-mod}A ${mod} ${mod} 0 0 1 ${x},${y}`;
                                     }
                                     if (i+1 === arr.length) {
                                       return `L${x},${y}Z`;
                                     }
                                     return `L${x},${y}`;
                                   });
-                                  // console.log(bar.area === arr.join(''));
-                                  // console.log(arr.join(''));
                                   bar.area = arr.join('');
                                 }
 
