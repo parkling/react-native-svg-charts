@@ -160,10 +160,10 @@ class BarChart extends PureComponent {
                                     }
                                     let y = Number(xy[1]);
                                     if (i === 0) {
-                                      return `M${x},${y}A ${mod} ${mod} 0 0 1 ${x+mod},${y-mod}`;
+                                      return `M${x},${y+mod}A ${mod} ${mod} 0 0 1 ${x+mod},${y}`;
                                     }
                                     if (i === 1) {
-                                      return `L${x-mod},${y-mod}A ${mod} ${mod} 0 0 1 ${x},${y}`;
+                                      return `L${x-mod},${y}A ${mod} ${mod} 0 0 1 ${x},${y+mod}`;
                                     }
                                     if (i+1 === arr.length) {
                                       return `L${x},${y}Z`;
