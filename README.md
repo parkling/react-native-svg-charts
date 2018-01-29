@@ -73,6 +73,7 @@ yarn storybook
 | gridMin | undefined | Normally the graph tries to draw from edge to edge within the view bounds. Using this prop will allow the grid to reach further than the actual dataPoints. [Example](#gridmin/max) |
 | gridMax | undefined | The same as "gridMin" but will instead increase the grids maximum value |
 | gridProps | `{}` | An object of props that are passed to the [Line](https://github.com/react-native-community/react-native-svg#line) component that renders the grid |
+| renderGrid | `Grid.Horizontal` | A function that returns the component to be rendered as the grid |
 | extras | undefined | An array of whatever data you want to render. Each item in the array will call `renderExtra`. [See example](#extras) |
 | renderExtra | `() => {}` | Similar to the `renderItem` of a *FlatList*. This function will be called for each item in the `extras` array and pass an object as an argument. The argument object is of the shape `{x: function, y: function, item: item of extras}`. [See example](#extras) |
 | renderDecorator | `() => {}`| Called once for each entry in `dataPoints` and expects a component. Use this prop to render e.g points (circles) on each data point. [See example](#decorator) |
@@ -98,6 +99,7 @@ Also see [other examples](#other-examples)
 * [GridMin/Max](#gridminmax)
 * [Layered Charts](#layered-charts)
 * [PieChart with labels](#piechart-with-labels)
+* [Custom Grid](#custom-grid)
 
 ### AreaChart
 
@@ -136,6 +138,9 @@ class AreaChartExample extends React.PureComponent {
 #### Props
 
 See [Common Props](#common-props)
+| Property | Default | Description |
+| --- | --- | --- |
+| renderLineGradient | undefined | The same as `renderGradient` but for the line in the chart  |
 
 ### StackedAreaChart
 
@@ -191,7 +196,7 @@ class StackedAreaExample extends React.PureComponent {
         const keys   = [ 'apples', 'bananas', 'cherries', 'dates' ]
 
         return (
-            <AreaStackChart
+            <StackedAreaChart
                 style={ { height: 200, paddingVertical: 16 } }
                 data={ data }
                 keys={ keys }
@@ -470,6 +475,7 @@ class PieChartExample extends React.PureComponent {
                 value,
                 color: randomColor(),
                 key: `pie-${index}`,
+                onPress: () => console.log(`${index} slice pressed`),
             }))
 
         return (
@@ -487,7 +493,7 @@ class PieChartExample extends React.PureComponent {
 
 | Property | Default | Description |
 | --- | --- | --- |
-| data | **required** | Slightly different than `dataPoints` because we allow for custom coloring of slices. The array should contain objects of the following shape: `{key: 'string|number', color: 'string', value: 'number'}` |
+| data | **required** | Slightly different than `dataPoints` because we allow for custom coloring of slices and onPress callback. The array should contain objects of the following shape: `{key: 'string|number', color: 'string', value: 'number', onPress?: function}` |
 | outerRadius | "100%" | The outer radius, use this to tweak how close your pie is to the edge of it's container. Takes either percentages or absolute numbers (pixels) |
 | innerRadius | "50%" | The inner radius, use this to create a donut. Takes either percentages or absolute numbers (pixels) |
 | labelRadius | undefined | The radius of the circle that will help you layout your labels. Takes either percentages or absolute numbers (pixels) |
@@ -654,6 +660,9 @@ class YAxisExample extends React.PureComponent {
 | labelStyle | undefined | Supports all [TextStyleProps](https://facebook.github.io/react-native/docs/textstyleproptypes.html) |
 | formatLabel | `value => {}` | A utility function to format the text before it is displayed, e.g `value => "$" + value |
 | contentInset | { top: 0, bottom: 0 } | Used to sync layout with chart (if same prop used there) |
+| min | undefined | Used to sync layout with chart (if gridMin is used there) |
+| max | undefined | Used to sync layout with chart (if gridMax is used there) |
+
 
 ### XAxis
 
@@ -1212,6 +1221,81 @@ class PieChartWithLabelExample extends React.PureComponent {
     }
 
 }
+```
+
+
+### Custom grid
+The default grid is just a collection of horizontal `Line`s. If you simply want to change the direction or styling look at the `renderGrid` & `gridProps` prop.
+Some projects might require more control of the grid ( direction, different distributions etc), therefore all affected components support the `renderGrid` prop.
+The `renderGrid` prop takes a function and provides the `x`, `y`, `ticks` and `dataPoints` arguments. Use them as in the example below
+
+![Custom grid](https://raw.githubusercontent.com/jesperlekland/react-native-svg-charts/master/screenshots/custom-grid.png)
+
+### Example
+```javascript
+import React from 'react'
+import { View } from 'react-native'
+import { G, Line } from 'react-native-svg'
+import { LineChart, Grid } from 'react-native-svg-charts'
+
+class CustomGridExample extends React.PureComponent {
+
+    render() {
+
+        const data = [ 50, 10, 40, 95, -4, -24, 85, 91, 35, 53, -53, 24, 50, -20, -80 ]
+
+        const CustomGrid = ({ x, y, dataPoints, ticks }) => (
+            <G>
+                {
+                    // Horizontal grid
+                    ticks.map(tick => (
+                        <Line
+                            key={ tick }
+                            x1={ '0%' }
+                            x2={ '100%' }
+                            y1={ y(tick) }
+                            y2={ y(tick) }
+                            stroke={ 'rgba(0,0,0,0.2)' }
+                        />
+                    ))
+                }
+                {
+                    // Vertical grid
+                    dataPoints.map((_, index) => (
+                        <Line
+                            key={ index }
+                            y1={ '0%' }
+                            y2={ '100%' }
+                            x1={ x(index) }
+                            x2={ x(index) }
+                            stroke={ 'rgba(0,0,0,0.2)' }
+                        />
+                    ))
+                }
+            </G>
+        )
+
+        return (
+            <View style={ { height: 200, flexDirection: 'row' } }>
+                <LineChart
+                    style={ { flex: 1 } }
+                    dataPoints={ data }
+                    svg={ {
+                        stroke: 'rgb(134, 65, 244)',
+                    } }
+                    renderGrid={ CustomGrid }
+                    // renderGrid={ Grid.Horizontal }
+                    // renderGrid={ Grid.Vertical }
+                    // renderGrid={ Grid.Both }
+                />
+            </View>
+        )
+    }
+
+}
+
+export default CustomGrid
+
 ```
 
 ## License

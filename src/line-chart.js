@@ -6,7 +6,6 @@ import React, { PureComponent } from 'react'
 import { View } from 'react-native'
 import Svg, { Defs } from 'react-native-svg'
 import Path from './animated-path'
-import { Constants } from './util'
 import Grid from './grid'
 
 class LineChart extends PureComponent {
@@ -57,6 +56,7 @@ class LineChart extends PureComponent {
                   svg,
                   shadowSvg,
                   renderGradient,
+                  renderGrid = Grid,
               } = this.props
 
         const { width, height } = this.state
@@ -65,7 +65,7 @@ class LineChart extends PureComponent {
             return <View style={ style }/>
         }
 
-        const extent = array.extent([ ...dataPoints, gridMax, gridMin, -shadowOffset ])
+        const extent = array.extent([ ...dataPoints, gridMax, gridMin ])
         const ticks  = array.ticks(extent[ 0 ], extent[ 1 ], numberOfTicks)
 
         //invert range to support svg coordinate system
@@ -93,14 +93,7 @@ class LineChart extends PureComponent {
             <View style={style}>
                 <View style={{ flex: 1 }} onLayout={event => this._onLayout(event)}>
                     <Svg style={{ flex: 1 }}>
-                        {
-                            showGrid &&
-                            <Grid
-                                y={ y }
-                                ticks={ ticks }
-                                gridProps={ gridProps }
-                            />
-                        }
+                        { showGrid && renderGrid({ x, y, ticks, dataPoints, gridProps }) }
                         {
                             <Defs>
                                 { renderGradient && renderGradient({ id: 'gradient', width, height, x, y }) }
@@ -135,11 +128,13 @@ LineChart.propTypes = {
     dataPoints: PropTypes.arrayOf(PropTypes.number).isRequired,
     svg: PropTypes.object,
     shadowSvg: PropTypes.object,
-    shadowWidth: PropTypes.number,
     shadowOffset: PropTypes.number,
+
     style: PropTypes.any,
+
     animate: PropTypes.bool,
     animationDuration: PropTypes.number,
+
     curve: PropTypes.func,
     contentInset: PropTypes.shape({
         top: PropTypes.number,
@@ -148,15 +143,17 @@ LineChart.propTypes = {
         bottom: PropTypes.number,
     }),
     numberOfTicks: PropTypes.number,
-    showGrid: PropTypes.bool,
-    gridMin: PropTypes.number,
-    gridMax: PropTypes.number,
     extras: PropTypes.array,
-    gridProps: PropTypes.object,
+
     renderDecorator: PropTypes.func,
     renderExtra: PropTypes.func,
     renderGradient: PropTypes.func,
-    ...Constants.gridProps,
+
+    gridMin: PropTypes.number,
+    gridMax: PropTypes.number,
+    showGrid: PropTypes.bool,
+    gridProps: PropTypes.object,
+    renderGrid: PropTypes.func,
 }
 
 LineChart.defaultProps = {
@@ -169,10 +166,7 @@ LineChart.defaultProps = {
     contentInset: {},
     numberOfTicks: 10,
     showGrid: true,
-    gridMin: 0,
-    gridMax: 0,
     extras: [],
-    ...Constants.gridDefaultProps,
     renderDecorator: () => {
     },
     renderExtra: () => {

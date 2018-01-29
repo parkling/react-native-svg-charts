@@ -28,6 +28,7 @@ class AreaChart extends PureComponent {
                   animationDuration,
                   style,
                   renderGradient,
+                  renderLineGradient,
                   curve,
                   showGrid,
                   numberOfTicks,
@@ -44,6 +45,7 @@ class AreaChart extends PureComponent {
                   extras,
                   renderExtra,
                   svg,
+                  renderGrid = Grid,
               } = this.props
 
         const { height, width } = this.state
@@ -98,16 +100,10 @@ class AreaChart extends PureComponent {
                     onLayout={event => this._onLayout(event)}
                 >
                     <Svg style={{ flex: 1 }}>
-                        {
-                            showGrid &&
-                            <Grid
-                                y={ y }
-                                ticks={ ticks }
-                                gridProps={ gridProps }
-                            />
-                        }
+                        { showGrid && renderGrid({ x, y, ticks, dataPoints, gridProps }) }
                         <Defs>
                             { renderGradient && renderGradient({ id: 'gradient', width, height, x, y }) }
+                            { renderLineGradient && renderLineGradient({ id: 'line-gradient', width, height, x, y }) }
                         </Defs>
                         <Path
                             { ...svg }
@@ -119,6 +115,7 @@ class AreaChart extends PureComponent {
                         />
                         <Path
                             { ...svg }
+                            stroke={ renderLineGradient ? 'url(#line-gradient)' : svg.stroke }
                             animate={animate}
                             animationDuration={animationDuration}
                             d={ line }
@@ -156,7 +153,9 @@ AreaChart.propTypes = {
     gridMax: PropTypes.number,
     // see https://github.com/react-native-community/react-native-svg#lineargradient for more info
     renderGradient: PropTypes.func,
+    renderLineGradient: PropTypes.func,
     curve: PropTypes.func,
+    renderGrid: PropTypes.func,
 }
 
 AreaChart.defaultProps = {
@@ -165,8 +164,6 @@ AreaChart.defaultProps = {
     contentInset: {},
     numberOfTicks: 10,
     showGrid: true,
-    gridMin: 0,
-    gridMax: 0,
     extras: [],
     renderDecorator: () => {
     },
